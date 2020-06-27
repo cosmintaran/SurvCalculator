@@ -35,6 +35,7 @@ public class Entity implements IDrawable {
         // set the buffer to read the first coordinate
         vertexBuffer.position(0);
         shader = new Shader(c);
+        shader.vUnbind();
         vertexCount = vertexCoords.length / COORDS_PER_VERTEX;
     }
 
