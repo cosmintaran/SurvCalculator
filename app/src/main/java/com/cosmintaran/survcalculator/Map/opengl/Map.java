@@ -3,23 +3,24 @@ package com.cosmintaran.survcalculator.Map.opengl;
 import android.content.Context;
 import android.opengl.GLES30;
 import android.opengl.GLSurfaceView;
+
 import android.opengl.Matrix;
 import android.renderscript.Matrix4f;
 import android.util.AttributeSet;
 
-import com.cosmintaran.survcalculator.Map.drawable.DrawablePoint;
 import com.cosmintaran.survcalculator.Map.helperClasses.SrvPoint2D;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-public class Map extends GLSurfaceView  implements GLSurfaceView.Renderer {
+public class Map extends GLSurfaceView implements GLSurfaceView.Renderer {
 
-    private final float[] vPMatrix = new float[16];
-    private final float[] projectionMatrix = new float[16];
-    private float[] modelMatrix = new float[16];
-    private final float[] viewMatrix = new float[16];
+    Matrix4f transf1Matrix4f;
+    Matrix4f scale;
+    Matrix4f orto;
     private List<IDrawable> entities;
     private Context mContext;
     private Camera _camera;
@@ -35,7 +36,7 @@ public class Map extends GLSurfaceView  implements GLSurfaceView.Renderer {
         init(context);
     }
 
-    private void init(Context c) {
+    private void init ( Context c ) {
         setEGLContextClientVersion(2);
         setPreserveEGLContextOnPause(true);
         GLES30.glEnable(GLES30.GL_LINE_WIDTH);
@@ -44,55 +45,68 @@ public class Map extends GLSurfaceView  implements GLSurfaceView.Renderer {
         mContext = c;
         _camera = new Camera();
 
-        xMax = 455000f;
-        yMax = 235300f;
-        xMin = 452000f;
-        yMin = 235100f;
+        xMax = 455500f;
+        yMax = 236100f;
+        xMin = 454500f;
+        yMin = 235200f;
+
+        transf1Matrix4f = new Matrix4f();
+        scale = new Matrix4f();
+        orto = new Matrix4f();
     }
 
     @Override
     public void onSurfaceCreated ( GL10 unused , EGLConfig config ) {
         ClearColor();
-        //entities.add(new Line(mContext,new SrvPoint2D(200,500), new SrvPoint2D(450, 650)));
-       // entities.add(new Circle(mContext,new SrvPoint2D(200,500),5f));
-        entities.add(new Circle(mContext,new SrvPoint2D(720f,1092f),20f));
-        entities.add(new Triangle(mContext));
-        Matrix.setIdentityM(modelMatrix,0);
-        Matrix4f m4f = new Matrix4f();
-        m4f.loadTranslate(-(xMin + (xMax - xMin)), -(yMin + (yMax - yMin)),0);
-        modelMatrix = m4f.getArray();
+        float xc = xMin + (xMax - xMin) / 2;
+        float yc = yMin + (yMax - yMin) / 2;
+        entities.add(new Circle(mContext , new SrvPoint2D(xc , yc) , 10f));
+
+        entities.add(new Circle(mContext , new SrvPoint2D(454500 , 235200) , 10f));
+        entities.add(new Circle(mContext , new SrvPoint2D(455500 , 236100) , 10f));
+        entities.add(new Circle(mContext , new SrvPoint2D(454500 , 236100) , 10f));
+        entities.add(new Circle(mContext , new SrvPoint2D(455500 , 235200) , 10f));
+
+
+        entities.add(new Line(mContext , new SrvPoint2D(454500 , 235200) , new SrvPoint2D(454500 , 236100)));
+        entities.add(new Line(mContext , new SrvPoint2D(454500 , 236100) , new SrvPoint2D(455500 , 236100)));
+        entities.add(new Line(mContext , new SrvPoint2D(455500 , 236100) , new SrvPoint2D(455500 , 235200)));
+        entities.add(new Line(mContext , new SrvPoint2D(455500 , 235200) , new SrvPoint2D(454500 , 235200)));
     }
 
     @Override
     public void onSurfaceChanged ( GL10 unused , int width , int height ) {
-
         GLES30.glViewport(0 , 0 , width , height);
-        Matrix.setIdentityM(projectionMatrix,0);
+        float xc = xMin + (xMax - xMin) * 0.5f;
+        float yc = yMin + (yMax - yMin) *0.5f;
 
-        Matrix.orthoM(projectionMatrix, 0, 0, width ,  0 ,  height, -1, 1);
-
+        transf1Matrix4f.loadTranslate((width *0.5f) - xc , (height *0.5f) - yc , 0);
+        //scale.loadScale((width / (xMax - xMin)) , (width / (xMax - xMin)) , 0.0f);
+        scale.loadScale(0.25f , 0.25f , 1.0f);
+        orto.loadOrtho(0f , width , 0f , height , -1 , 1);
+        transf1Matrix4f.multiply(scale);
+        orto.multiply(transf1Matrix4f);
     }
 
     @Override
     public void onDrawFrame ( GL10 unused ) {
         ClearColor();
-
-        Matrix.multiplyMM(vPMatrix, 0, projectionMatrix, 0, _camera.getMatrixView(), 0);
-
         if (entities.size() <= 0) return;
 
         for (IDrawable entity : entities) {
             if (entity == null) continue;
-            entity.draw(projectionMatrix);
+            entity.draw(orto.getArray());
         }
     }
 
     public void ClearColor ( ) {
         GLES30.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
-        GLES30.glClearColor(0.596078431372549019607843137255f,0.603921568627450980392156862745f,0.6196078431372549019607843137255f,1.0f);
+        GLES30.glClearColor(0.596078431372549019607843137255f , 0.603921568627450980392156862745f , 0.6196078431372549019607843137255f , 1.0f);
     }
 
-    private void CalcBoundaries() {
+
+
+    private void CalcBoundaries ( ) {
         /*if(points.size() < 1) return;
         if(points.size() == 1){
             DrawablePoint p = points.get(0);
@@ -122,13 +136,13 @@ public class Map extends GLSurfaceView  implements GLSurfaceView.Renderer {
         }*/
     }
 
-    private float normalizeX(double x) {
+    private float normalizeX ( double x ) {
         double w = getWidth();
-        float rez =  (float) ((x - xMin) * this.getWidth() / (xMax - xMin));
+        float rez = (float) ((x - xMin) * this.getWidth() / (xMax - xMin));
         return rez;
     }
 
-    private float normalizeY(double y) {
+    private float normalizeY ( double y ) {
         float rez = (float) (/*this.getHeight() - */(y - yMin) * getHeight() / (yMax - yMin));
         return rez;
     }

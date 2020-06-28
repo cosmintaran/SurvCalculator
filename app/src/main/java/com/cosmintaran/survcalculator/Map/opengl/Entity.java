@@ -8,7 +8,7 @@ import java.nio.FloatBuffer;
 public class Entity implements IDrawable {
 
     protected FloatBuffer vertexBuffer;
-    protected static final int COORDS_PER_VERTEX = 2;
+    protected static final int COORDS_PER_VERTEX = 3;
     protected final int vertexStride = COORDS_PER_VERTEX * 4; // 4 bytes per vertex
     protected int vertexCount;
 

@@ -12,9 +12,9 @@ public class Triangle extends Entity {
 
     public Triangle( Context c) {
         vertexCoords = new float[]{
-                720, 1092f, // top
-                360f, 500,  // bottom left
-                1080f, 500f  // bottom right
+                455000f, 236000f,0, // top
+                454640f, 235408f,0,  // bottom left
+                455360f, 235408f ,0 // bottom right
         };
 
         init(c);

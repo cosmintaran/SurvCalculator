@@ -23,6 +23,7 @@ public class Line extends Entity {
 
     @Override
     public void draw ( float[] u_MVP) {
+        shader.vBind();
         shader.vSetUniformMat4f("u_MVP" ,u_MVP );
         shader.vSetUniform4f("u_Color" , color[0] , color[1] , color[2] , color[3]);
         int posHandler = shader.iGetAttributeLocation("vPosition");
@@ -30,8 +31,6 @@ public class Line extends Entity {
         GLES30.glVertexAttribPointer(posHandler , COORDS_PER_VERTEX ,
                 GLES30.GL_FLOAT , false ,
                 vertexStride , vertexBuffer);
-
-        shader.vBind();
         GLES30.glDrawArrays(GLES30.GL_LINES, 0, vertexCount);
 
         // Disable vertex array

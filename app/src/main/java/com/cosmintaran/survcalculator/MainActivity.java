@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.graphics.PixelFormat;
 import android.os.Bundle;
+import android.view.MotionEvent;
 
 import com.cosmintaran.survcalculator.Map.opengl.Map;
 
@@ -29,5 +30,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         map.onPause();
+    }
+
+    @Override
+    public boolean onTouchEvent ( MotionEvent event ) {
+        return super.onTouchEvent(event);
+
     }
 }

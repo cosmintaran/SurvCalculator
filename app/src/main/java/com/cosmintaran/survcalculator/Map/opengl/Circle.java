@@ -15,7 +15,7 @@ public class Circle extends Entity {
     public Circle ( Context c , SrvPoint2D center , float radius ) {
         _center = center;
         _radius = radius;
-        vertexCoords = new float[(NR_OF_EDGES + 2) * 2];
+        vertexCoords = new float[(NR_OF_EDGES + 2) * 3];
         CalculateFan();
         init(c);
     }
@@ -27,10 +27,12 @@ public class Circle extends Entity {
         double angle = (Math.PI * 2) / NR_OF_EDGES;
         vertexCoords[0] = (float) _center.X;
         vertexCoords[1] = (float) _center.Y;
+        vertexCoords[3] = 0.0f;
 
         for (int i = 1; i < nrOfPoints; ++i) {
-            vertexCoords[i * 2] = (float) (_center.X + (_radius * Math.cos(i * angle)));
-            vertexCoords[(i * 2) + 1] = (float) (_center.Y + (_radius * Math.sin(i * angle)));
+            vertexCoords[i * 3] = (float) (_center.X + (_radius * Math.cos(i * angle)));
+            vertexCoords[(i * 3) + 1] = (float) (_center.Y + (_radius * Math.sin(i * angle)));
+            vertexCoords[(i*3) + 2] = 0.0f;
         }
     }
 
