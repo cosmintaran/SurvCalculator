@@ -72,6 +72,7 @@ public class Map extends GLSurfaceView implements GLSurfaceView.Renderer {
         entities.add(new Line(mContext , new SrvPoint2D(454500 , 236100) , new SrvPoint2D(455500 , 236100)));
         entities.add(new Line(mContext , new SrvPoint2D(455500 , 236100) , new SrvPoint2D(455500 , 235200)));
         entities.add(new Line(mContext , new SrvPoint2D(455500 , 235200) , new SrvPoint2D(454500 , 235200)));
+        entities.add(new Triangle(mContext));
     }
 
     @Override
@@ -80,11 +81,11 @@ public class Map extends GLSurfaceView implements GLSurfaceView.Renderer {
         float xc = xMin + (xMax - xMin) * 0.5f;
         float yc = yMin + (yMax - yMin) *0.5f;
 
-        transf1Matrix4f.loadTranslate((width *0.5f) - xc , (height *0.5f) - yc , 0);
+        transf1Matrix4f.loadTranslate(- xc , - yc , 0);
         //scale.loadScale((width / (xMax - xMin)) , (width / (xMax - xMin)) , 0.0f);
         scale.loadScale(0.25f , 0.25f , 1.0f);
-        orto.loadOrtho(0f , width , 0f , height , -1 , 1);
-        transf1Matrix4f.multiply(scale);
+        orto.loadOrtho(-width*1.5f , width*1.5f , -height*1.5f , height*1.5f , -1 , 1);
+        //transf1Matrix4f.multiply(scale);
         orto.multiply(transf1Matrix4f);
     }
 

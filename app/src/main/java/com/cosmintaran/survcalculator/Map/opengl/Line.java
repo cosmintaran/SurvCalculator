@@ -18,7 +18,7 @@ public class Line extends Entity {
         };
 
         init(c);
-        GLES30.glLineWidth(3);
+        GLES30.glLineWidth(2);
     }
 
     @Override
