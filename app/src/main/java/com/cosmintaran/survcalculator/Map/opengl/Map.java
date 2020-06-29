@@ -4,7 +4,6 @@ import android.content.Context;
 import android.opengl.GLES30;
 import android.opengl.GLSurfaceView;
 
-import android.opengl.Matrix;
 import android.renderscript.Matrix4f;
 import android.util.AttributeSet;
 
@@ -18,13 +17,14 @@ import javax.microedition.khronos.opengles.GL10;
 
 public class Map extends GLSurfaceView implements GLSurfaceView.Renderer {
 
-    Matrix4f transf1Matrix4f;
-    Matrix4f scale;
-    Matrix4f orto;
+    private Matrix4f viewCameraMatrix;
+    private Matrix4f ortographicProjectionMatrix;
     private List<IDrawable> entities;
     private Context mContext;
-    private Camera _camera;
     private float xMax, yMax, xMin, yMin;
+    private float _scaleFactor;
+    private float _translateX;
+    private float _translateY;
 
     public Map ( Context context ) {
         super(context);
@@ -43,16 +43,16 @@ public class Map extends GLSurfaceView implements GLSurfaceView.Renderer {
         setRenderer(this);
         entities = new ArrayList<>();
         mContext = c;
-        _camera = new Camera();
 
         xMax = 455500f;
         yMax = 236100f;
         xMin = 454500f;
         yMin = 235200f;
-
-        transf1Matrix4f = new Matrix4f();
-        scale = new Matrix4f();
-        orto = new Matrix4f();
+        _scaleFactor = 1.0f;
+        _translateX = xMin + (xMax - xMin) * 0.5f;
+        _translateY = yMin + (yMax - yMin) *0.5f;
+        viewCameraMatrix = new Matrix4f();
+        ortographicProjectionMatrix = new Matrix4f();
     }
 
     @Override
@@ -60,6 +60,15 @@ public class Map extends GLSurfaceView implements GLSurfaceView.Renderer {
         ClearColor();
         float xc = xMin + (xMax - xMin) / 2;
         float yc = yMin + (yMax - yMin) / 2;
+
+        //fit to the display at startup zoom extended
+        if(getWidth() < getHeight()){
+            _scaleFactor = (getWidth()/(xMax - xMin)) * 1.9f;
+        }
+        else {
+            _scaleFactor = (getHeight()/(yMax - yMin)) * 1.9f;
+        }
+
         entities.add(new Circle(mContext , new SrvPoint2D(xc , yc) , 10f));
 
         entities.add(new Circle(mContext , new SrvPoint2D(454500 , 235200) , 10f));
@@ -78,15 +87,13 @@ public class Map extends GLSurfaceView implements GLSurfaceView.Renderer {
     @Override
     public void onSurfaceChanged ( GL10 unused , int width , int height ) {
         GLES30.glViewport(0 , 0 , width , height);
-        float xc = xMin + (xMax - xMin) * 0.5f;
-        float yc = yMin + (yMax - yMin) *0.5f;
+        updateMatrixProjection();
+    }
 
-        transf1Matrix4f.loadTranslate(- xc , - yc , 0);
-        //scale.loadScale((width / (xMax - xMin)) , (width / (xMax - xMin)) , 0.0f);
-        scale.loadScale(0.25f , 0.25f , 1.0f);
-        orto.loadOrtho(-width*1.5f , width*1.5f , -height*1.5f , height*1.5f , -1 , 1);
-        //transf1Matrix4f.multiply(scale);
-        orto.multiply(transf1Matrix4f);
+    private void updateMatrixProjection ( ) {
+        viewCameraMatrix.loadTranslate(- _translateX , - _translateY , 0);
+        ortographicProjectionMatrix.loadOrtho(-getWidth() / _scaleFactor , getWidth() / _scaleFactor , -getHeight() /_scaleFactor , getHeight() /_scaleFactor , -1 , 1);
+        ortographicProjectionMatrix.multiply(viewCameraMatrix);
     }
 
     @Override
@@ -96,7 +103,7 @@ public class Map extends GLSurfaceView implements GLSurfaceView.Renderer {
 
         for (IDrawable entity : entities) {
             if (entity == null) continue;
-            entity.draw(orto.getArray());
+            entity.draw(ortographicProjectionMatrix.getArray());
         }
     }
 
@@ -105,47 +112,14 @@ public class Map extends GLSurfaceView implements GLSurfaceView.Renderer {
         GLES30.glClearColor(0.596078431372549019607843137255f , 0.603921568627450980392156862745f , 0.6196078431372549019607843137255f , 1.0f);
     }
 
-
-
-    private void CalcBoundaries ( ) {
-        /*if(points.size() < 1) return;
-        if(points.size() == 1){
-            DrawablePoint p = points.get(0);
-            double width = getWidth() * 0.5;
-            double height = getHeight() * 0.5;
-
-            xMax = p.getX() + width ;
-            xMin = p.getX() -  width;
-
-            yMax = p.getY() + height;
-            yMin = p.getY() - height;
-            return;
-        }
-
-        for (DrawablePoint p : points) {
-            if (p.getX() > xMax)
-                xMax = p.getX();
-
-            if (p.getX() < xMin)
-                xMin = p.getX();
-
-            if (p.getY() > yMax)
-                yMax = p.getY();
-
-            if (p.getY() < yMin)
-                yMin = p.getY();
-        }*/
+    public void panTo ( float mPosX , float mPosY ) {
+        _translateX -= mPosX * 1.2f;
+        _translateY += mPosY * 1.2f;
+        updateMatrixProjection();
     }
 
-    private float normalizeX ( double x ) {
-        double w = getWidth();
-        float rez = (float) ((x - xMin) * this.getWidth() / (xMax - xMin));
-        return rez;
+    public void scale ( float scaleFactor ) {
+        _scaleFactor = scaleFactor;
+        updateMatrixProjection();
     }
-
-    private float normalizeY ( double y ) {
-        float rez = (float) (/*this.getHeight() - */(y - yMin) * getHeight() / (yMax - yMin));
-        return rez;
-    }
-
 }

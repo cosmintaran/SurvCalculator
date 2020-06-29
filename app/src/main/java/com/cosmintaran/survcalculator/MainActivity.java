@@ -16,8 +16,6 @@ public class MainActivity extends AppCompatActivity {
     private float mScaleFactor = 1.f;
     private float mLastTouchX;
     private float mLastTouchY;
-    private float mPosX;
-    private float mPosY;
     private static final int INVALID_POINTER_ID = -1;
 
     // The ‘active pointer’ is the one currently moving our object.
@@ -29,17 +27,17 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         map = findViewById(R.id.map);
         getWindow().setFormat(PixelFormat.RGBA_8888);
-        mScaleDetector = new ScaleGestureDetector(getBaseContext(), new ScaleListener());
+        mScaleDetector = new ScaleGestureDetector(getBaseContext() , new ScaleListener());
     }
 
     @Override
-    protected void onResume() {
+    protected void onResume ( ) {
         super.onResume();
         map.onResume();
     }
 
     @Override
-    protected void onPause() {
+    protected void onPause ( ) {
         super.onPause();
         map.onPause();
     }
@@ -52,11 +50,8 @@ public class MainActivity extends AppCompatActivity {
         final int action = ev.getAction();
         switch (action & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN: {
-                final float x = ev.getX();
-                final float y = ev.getY();
-
-                mLastTouchX = x;
-                mLastTouchY = y;
+                mLastTouchX =ev.getX();
+                mLastTouchY = ev.getY();
                 mActivePointerId = ev.getPointerId(0);
                 break;
             }
@@ -70,24 +65,14 @@ public class MainActivity extends AppCompatActivity {
                 if (!mScaleDetector.isInProgress()) {
                     final float dx = x - mLastTouchX;
                     final float dy = y - mLastTouchY;
-
-                    mPosX += dx;
-                    mPosY += dy;
-
-                    //invalidate();
+                    map.panTo(dx , dy);
                 }
-
                 mLastTouchX = x;
                 mLastTouchY = y;
-
                 break;
             }
 
-            case MotionEvent.ACTION_UP: {
-                mActivePointerId = INVALID_POINTER_ID;
-                break;
-            }
-
+            case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL: {
                 mActivePointerId = INVALID_POINTER_ID;
                 break;
@@ -107,6 +92,8 @@ public class MainActivity extends AppCompatActivity {
                 }
                 break;
             }
+            default:
+                break;
         }
 
         return true;
@@ -115,13 +102,12 @@ public class MainActivity extends AppCompatActivity {
 
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
         @Override
-        public boolean onScale( ScaleGestureDetector detector) {
+        public boolean onScale ( ScaleGestureDetector detector ) {
             mScaleFactor *= detector.getScaleFactor();
-
             // Don't let the object get too small or too large.
-            mScaleFactor = Math.max(0.1f, Math.min(mScaleFactor, 5.0f));
+            mScaleFactor = Math.max(0.1f , Math.min(mScaleFactor , 5.0f));
 
-            //invalidate();
+            map.scale(mScaleFactor);
             return true;
         }
     }
