@@ -1,23 +1,21 @@
 package com.cosmintaran.survcalculator;
 
 import androidx.appcompat.app.AppCompatActivity;
-
 import android.graphics.PixelFormat;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
-
-import com.cosmintaran.survcalculator.Map.opengl.Map;
+import com.cosmintaran.survcalculator.MapControl.model.SceneFrame;
+import com.cosmintaran.survcalculator.MapControl.view.MapSurfaceView;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Map map;
+    private MapSurfaceView mapSurfaceView;
     private ScaleGestureDetector mScaleDetector;
     private float mScaleFactor = 1.f;
     private float mLastTouchX;
     private float mLastTouchY;
     private static final int INVALID_POINTER_ID = -1;
-
     // The ‘active pointer’ is the one currently moving our object.
     private int mActivePointerId = INVALID_POINTER_ID;
 
@@ -25,21 +23,19 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate ( Bundle savedInstanceState ) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        map = findViewById(R.id.map);
         getWindow().setFormat(PixelFormat.RGBA_8888);
+        mapSurfaceView = findViewById(R.id.mapView);
         mScaleDetector = new ScaleGestureDetector(getBaseContext() , new ScaleListener());
     }
 
     @Override
     protected void onResume ( ) {
         super.onResume();
-        map.onResume();
     }
 
     @Override
     protected void onPause ( ) {
         super.onPause();
-        map.onPause();
     }
 
     @Override
@@ -65,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
                 if (!mScaleDetector.isInProgress()) {
                     final float dx = x - mLastTouchX;
                     final float dy = y - mLastTouchY;
-                    map.panTo(dx , dy);
+                    mapSurfaceView.panTo(dx , dy);
                 }
                 mLastTouchX = x;
                 mLastTouchY = y;
@@ -106,8 +102,7 @@ public class MainActivity extends AppCompatActivity {
             mScaleFactor *= detector.getScaleFactor();
             // Don't let the object get too small or too large.
             mScaleFactor = Math.max(0.1f , Math.min(mScaleFactor , 5.0f));
-
-            map.scale(mScaleFactor);
+            mapSurfaceView.scale(mScaleFactor,mLastTouchX,mLastTouchY);
             return true;
         }
     }

@@ -2,7 +2,6 @@ package com.cosmintaran.survcalculator.Map.opengl;
 
 import android.content.Context;
 import android.opengl.GLES30;
-
 import com.cosmintaran.survcalculator.Map.helperClasses.SrvPoint2D;
 
 
@@ -11,6 +10,7 @@ public class Circle extends Entity {
     private SrvPoint2D _center;
     private float _radius;
     private static final short NR_OF_EDGES = 10;
+    private BSText text;
 
     public Circle ( Context c , SrvPoint2D center , float radius ) {
         _center = center;
@@ -18,6 +18,8 @@ public class Circle extends Entity {
         vertexCoords = new float[(NR_OF_EDGES + 2) * 3];
         CalculateFan();
         init(c);
+        text = new BSText(c, (int)(center.X + radius), (int) center.Y, 0,0,0,"101", 50);
+        text.setCoords(-0.99f,-0.81f, -0.99f,-1.2f, 0.99f,-1.2f,0.99f,-0.81f);
     }
 
 
@@ -32,15 +34,15 @@ public class Circle extends Entity {
         for (int i = 1; i < nrOfPoints; ++i) {
             vertexCoords[i * 3] = (float) (_center.X + (_radius * Math.cos(i * angle)));
             vertexCoords[(i * 3) + 1] = (float) (_center.Y + (_radius * Math.sin(i * angle)));
-            vertexCoords[(i*3) + 2] = 0.0f;
+            vertexCoords[(i * 3) + 2] = 0.0f;
         }
     }
 
     @Override
     public void draw ( float[] u_MVP ) {
-
+        text.Draw(u_MVP);
         shader.vBind();
-        shader.vSetUniformMat4f("u_MVP" ,u_MVP );
+        shader.vSetUniformMat4f("u_MVP" , u_MVP);
         shader.vSetUniform4f("u_Color" , color[0] , color[1] , color[2] , color[3]);
         int posHandler = shader.iGetAttributeLocation("vPosition");
 
@@ -50,9 +52,12 @@ public class Circle extends Entity {
                 vertexStride , vertexBuffer);
 
 
-        GLES30.glDrawArrays(GLES30.GL_TRIANGLE_FAN, 0, NR_OF_EDGES + 2);
+        GLES30.glDrawArrays(GLES30.GL_TRIANGLE_FAN , 0 , NR_OF_EDGES + 2);
 
         // Disable vertex array
         GLES30.glDisableVertexAttribArray(posHandler);
+
+
     }
+
 }

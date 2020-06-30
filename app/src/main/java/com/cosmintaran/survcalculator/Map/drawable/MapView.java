@@ -6,6 +6,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.Surface;
+import android.view.SurfaceView;
 import android.view.View;
 
 import androidx.annotation.Nullable;
@@ -58,7 +60,7 @@ public class MapView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
+
         CalcBoundaries();
         if(canvas == null) return;
         for (DrawableLine l : lines) {
@@ -76,7 +78,10 @@ public class MapView extends View {
             float y = normalizeY(p.getY());
             Log.println(Log.INFO, "",String.format("x:%f , y:%f",x,y));
             canvas.drawPoint(x, y, mPaint);
+
         }
+
+        super.onDraw(canvas);
     }
 
     private void init() {
