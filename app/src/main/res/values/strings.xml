@@ -2,4 +2,13 @@
     <string name="app_name">SurvCalculator</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string-array name="pointOperations">
+        <item>For point intersection</item>
+        <item>Drop perpendicular to line</item>
+        <item>Direction and distance</item>
+        <item>Point on line</item>
+    </string-array>
+
 </resources>

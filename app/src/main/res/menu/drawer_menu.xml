@@ -5,17 +5,17 @@
     <group android:checkableBehavior="single">
 
         <item
-            android:id="@+id/nav_map"
+            android:id="@+id/nav_points"
             android:icon="@drawable/ic_twotone_map_24"
-            android:title="Map" />
+            android:title="Points" />
 
         <item
-            android:id="@+id/Distance"
+            android:id="@+id/nav_distance"
             android:icon="@drawable/ic_twotone_map_24"
             android:title="Distance" />
 
         <item
-            android:id="@+id/Inverse"
+            android:id="@+id/nav_inverse"
             android:icon="@drawable/ic_twotone_map_24"
             android:title="Inverse" />
     </group>
