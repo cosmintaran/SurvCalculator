@@ -4,6 +4,8 @@ import org.jetbrains.annotations.NotNull;
 
 public final class Line2D {
 
+    private static final double TOLERANCE = 0.0001;
+
     private SrvPoint2D startPoint;
     private SrvPoint2D endPoint;
     private double length;
@@ -14,35 +16,23 @@ public final class Line2D {
     public Line2D(SrvPoint2D startPoint, SrvPoint2D endPoint) {
         this.startPoint = startPoint;
         this.endPoint = endPoint;
-        length = Double.NEGATIVE_INFINITY;
-        slope = Double.NEGATIVE_INFINITY;
-        intercept = Double.NEGATIVE_INFINITY;
+
+        double deltaX = startPoint.X - endPoint.X;
+        double deltaY = startPoint.Y - endPoint.Y;
+        length = Math.sqrt((deltaX * deltaX + deltaY * deltaY));
+        slope = deltaY / deltaX;
+        intercept = startPoint.Y - startPoint.X * slope;
     }
 
     public double getLength() {
-        if (length == Double.NEGATIVE_INFINITY) {
-            double deltaX = startPoint.X - endPoint.X;
-            double deltaY = startPoint.Y - endPoint.Y;
-            length = Math.sqrt((deltaX * deltaX + deltaY * deltaY));
-        }
         return length;
     }
 
     public double getSlope() {
-
-        if (slope == Double.NEGATIVE_INFINITY) {
-            double deltaX = startPoint.X - endPoint.X;
-            double deltaY = startPoint.Y - endPoint.Y;
-            if(deltaX != 0)
-                slope = deltaY / deltaX;
-        }
         return slope;
     }
 
     public double getIntercept() {
-        if (intercept == Double.NEGATIVE_INFINITY) {
-            intercept = startPoint.Y - startPoint.X * getSlope();
-        }
         return intercept;
     }
 
@@ -78,60 +68,74 @@ public final class Line2D {
 
     public LineIntersectionResult lineIntersection ( Line2D line2 ) {
 
+        //check if this line is vertical
+        if(Math.abs(startPoint.X - endPoint.X) < TOLERANCE){
+
+            double x = startPoint.X;
+            double dx = Math.abs(x - line2.startPoint.X);
+            double y;
+            if((line2.getSlope() > 0 && x < startPoint.X) ||
+             line2.getSlope() < 0 && x > startPoint.X){
+                y = (dx*line2.getSlope()) - line2.startPoint.Y;
+            }
+            else {
+                y = (dx*line2.getSlope()) + line2.startPoint.Y;
+            }
+            return new LineIntersectionResult(x,y,getTypeIntersection(line2,x,y));
+        }
+        else if(Math.abs(line2.startPoint.X - line2.endPoint.X) < TOLERANCE){
+
+            double x = line2.startPoint.X;
+            double dx = Math.abs(x - startPoint.X);
+            double y;
+
+            if((getSlope() > 0 && x < line2.startPoint.X) ||
+                    getSlope() < 0 && x > line2.startPoint.X){
+                y = (dx*getSlope()) - startPoint.Y;
+            }
+            else{
+                y = (dx*getSlope()) + startPoint.Y;
+            }
+
+            return new LineIntersectionResult(x,y,getTypeIntersection(line2,x,y));
+        }
+
         double slopeThis = getSlope();
         double interceptThis = getIntercept();
         double slope = line2.getSlope();
         double intercept = line2.getIntercept();
 
-        //one vertical line
-         if((slope == Double.NEGATIVE_INFINITY || slopeThis ==  Double.NEGATIVE_INFINITY) ||
-                (slope != Double.NEGATIVE_INFINITY && slopeThis ==  Double.NEGATIVE_INFINITY)){
-
-
-             if(slopeThis == Double.NEGATIVE_INFINITY){
-                 double x = startPoint.X;
-                 double dx = Math.abs(x - line2.startPoint.X);
-                 double y = (dx*slope) - line2.startPoint.Y;
-                 return new LineIntersectionResult(x,y,getTypeIntersection(line2,x,y));
-             }
-             else{
-
-                 double x = line2.startPoint.X;
-                 double dx = Math.abs(x - line2.startPoint.X);
-                 double y = (dx*slope) - startPoint.Y;
-                 return new LineIntersectionResult(x,y,getTypeIntersection(line2,x,y));
-             }
-
+        if(Math.abs(slope - slopeThis ) < TOLERANCE) {
+            return new LineIntersectionResult(Double.NEGATIVE_INFINITY,Double.NEGATIVE_INFINITY,TypeIntersection.NoIntersection);
         }
-         //parallel lines
-         else if((slope == Double.NEGATIVE_INFINITY && slopeThis ==  Double.NEGATIVE_INFINITY) ||
-                 Math.abs(slope - slopeThis ) < 0.000001){
-             return new LineIntersectionResult(Double.NEGATIVE_INFINITY,Double.NEGATIVE_INFINITY,TypeIntersection.NoIntersection);
-         }
-        //no vertical lines
         else{
             double left = slope + (-1 * slopeThis);
             double right = interceptThis + (-1 * intercept);
             double x = right / left;
             double y = slopeThis * x + interceptThis;
-             TypeIntersection type = getTypeIntersection(line2 , x , y);
+            TypeIntersection type = getTypeIntersection(line2 , x , y);
             return new LineIntersectionResult(x,y,type);
         }
     }
 
     @NotNull
     private TypeIntersection getTypeIntersection ( Line2D line2 , double x , double y ) {
+
         TypeIntersection type;
-        if(Math.abs(x - startPoint.X) < 0.0000001 && Math.abs(y - startPoint.Y) < 0.0000001 ||
-                Math.abs(x - endPoint.X) < 0.0000001 && Math.abs(y - endPoint.Y) < 0.0000001 ||
-                Math.abs(x - line2.startPoint.X) < 0.0000001 && Math.abs(y - line2.startPoint.Y) < 0.0000001 ||
-                Math.abs(x - line2.endPoint.X) < 0.0000001 && Math.abs(y - line2.endPoint.Y) < 0.0000001){
+        double x1 = Math.abs(x);
+        double y1 = Math.abs(y);
+
+        if(Math.abs(x1 - startPoint.X) < TOLERANCE && Math.abs(y1 - startPoint.Y) < TOLERANCE ||
+                Math.abs(x1 - endPoint.X) < TOLERANCE && Math.abs(y1 - endPoint.Y) < TOLERANCE ||
+                Math.abs(x1 - line2.startPoint.X) < TOLERANCE && Math.abs(y1 - line2.startPoint.Y) < TOLERANCE ||
+                Math.abs(x1 - line2.endPoint.X) < TOLERANCE && Math.abs(y1 - line2.endPoint.Y) < TOLERANCE){
             type = TypeIntersection.ExtremityIntersection;
         }
-        else if(x < Math.max(startPoint.X, endPoint.X) && x > Math.min(startPoint.X, endPoint.X) &&
-        y <Math.max(startPoint.Y, endPoint.Y) && y > Math.min(startPoint.Y, endPoint.Y) &&
-                x < Math.max(line2.startPoint.X, line2.endPoint.X) && x > Math.min(line2.startPoint.X, line2.endPoint.X) &&
-                y <Math.max(line2.startPoint.Y, line2.endPoint.Y) && y > Math.min(line2.startPoint.Y, line2.endPoint.Y))
+
+        else if(x1 < Math.max(startPoint.X, endPoint.X) && x1 > Math.min(startPoint.X, endPoint.X) &&
+                y1 <Math.max(startPoint.Y, endPoint.Y) && y1 > Math.min(startPoint.Y, endPoint.Y) &&
+                x1 < Math.max(line2.startPoint.X, line2.endPoint.X) && x1 > Math.min(line2.startPoint.X, line2.endPoint.X) &&
+                y1 <Math.max(line2.startPoint.Y, line2.endPoint.Y) && y1 > Math.min(line2.startPoint.Y, line2.endPoint.Y))
         {
             type = TypeIntersection.BoundedIntersection;
         }
@@ -139,6 +143,7 @@ public final class Line2D {
         else {
             type = TypeIntersection.UnboundedIntersection;
         }
+
         return type;
     }
 
