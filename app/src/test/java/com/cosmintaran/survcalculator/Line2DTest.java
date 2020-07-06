@@ -4,7 +4,6 @@ import com.cosmintaran.survcalculator.Map.helperClasses.Line2D;
 import com.cosmintaran.survcalculator.Map.helperClasses.LineIntersectionResult;
 import com.cosmintaran.survcalculator.Map.helperClasses.SrvPoint2D;
 import com.cosmintaran.survcalculator.Map.helperClasses.TypeIntersection;
-
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -51,11 +50,10 @@ public class Line2DTest {
         LineIntersectionResult r1 = l1.lineIntersection(l2);
         LineIntersectionResult r2 = l2.lineIntersection(l1);
         assertTrue(r1.getType() == r2.getType() && r1.getType() == TypeIntersection.BoundedIntersection);
-        assertTrue( Math.abs(r1.getX() - r1.getX()) < 0.00001);
-        assertTrue( Math.abs(r1.getY() - r1.getY()) < 0.00001);
+        assertTrue( Math.abs(r1.getX() - r2.getX()) < 0.00001);
+        assertTrue( Math.abs(r1.getY() - r2.getY()) < 0.00001);
         assertTrue(Math.abs(r1.getX() - 60.3424) < 0.0001);
         assertTrue(Math.abs(r1.getY() - 26.4308) < 0.0001);
-
     }
 
     @Test
@@ -65,8 +63,8 @@ public class Line2DTest {
         LineIntersectionResult r1 = l1.lineIntersection(l2);
         LineIntersectionResult r2 = l2.lineIntersection(l1);
         assertTrue(r1.getType() == r2.getType() && r1.getType() == TypeIntersection.ExtremityIntersection);
-        assertTrue( Math.abs(r1.getX() - r1.getX()) < 0.00001);
-        assertTrue( Math.abs(r1.getY() - r1.getY()) < 0.00001);
+        assertTrue( Math.abs(r1.getX() - r2.getX()) < 0.00001);
+        assertTrue( Math.abs(r1.getY() - r2.getY()) < 0.00001);
         assertTrue(Math.abs(r1.getX() - 33.4100) < 0.0001);
         assertTrue(Math.abs(r1.getY() - 52.7500) < 0.0001);
     }
@@ -79,8 +77,8 @@ public class Line2DTest {
         LineIntersectionResult r1 = l1.lineIntersection(l2);
         LineIntersectionResult r2 = l2.lineIntersection(l1);
         assertTrue(r1.getType() == r2.getType() && r1.getType() == TypeIntersection.UnboundedIntersection);
-        assertTrue( Math.abs(r1.getX() - r1.getX()) < 0.00001);
-        assertTrue( Math.abs(r1.getY() - r1.getY()) < 0.00001);
+        assertTrue( Math.abs(r1.getX() - r2.getX()) < 0.00001);
+        assertTrue( Math.abs(r1.getY() - r2.getY()) < 0.00001);
         assertTrue(Math.abs(r1.getX() -  8.6137) < 0.0001);
         assertTrue(Math.abs(r1.getY() - 76.9817) < 0.0001);
     }
@@ -92,8 +90,8 @@ public class Line2DTest {
         LineIntersectionResult r1 = l1.lineIntersection(l2);
         LineIntersectionResult r2 = l2.lineIntersection(l1);
         assertTrue(r1.getType() == r2.getType() && r1.getType() == TypeIntersection.UnboundedIntersection);
-        assertTrue( Math.abs(r1.getX() - r1.getX()) < 0.00001);
-        assertTrue( Math.abs(r1.getY() - r1.getY()) < 0.00001);
+        assertTrue( Math.abs(r1.getX() - r2.getX()) < 0.00001);
+        assertTrue( Math.abs(r1.getY() - r2.getY()) < 0.00001);
         assertTrue(Math.abs(r1.getX() - 107.6709) < 0.0001);
         assertTrue(Math.abs(r1.getY() - -19.8201) < 0.0001);
     }
@@ -106,8 +104,8 @@ public class Line2DTest {
         LineIntersectionResult r1 = l1.lineIntersection(l2);
         LineIntersectionResult r2 = l2.lineIntersection(l1);
         assertTrue(r1.getType() == r2.getType() && r1.getType() == TypeIntersection.ExtremityIntersection);
-        assertTrue( Math.abs(r1.getX() - r1.getX()) < 0.00001);
-        assertTrue( Math.abs(r1.getY() - r1.getY()) < 0.00001);
+        assertTrue( Math.abs(r1.getX() - r2.getX()) < 0.00001);
+        assertTrue( Math.abs(r1.getY() - r2.getY()) < 0.00001);
         assertTrue(Math.abs(r1.getX() - 61.9100) < 0.0001);
         assertTrue(Math.abs(r1.getY() - 126.0700) < 0.0001);
     }
@@ -119,10 +117,11 @@ public class Line2DTest {
         LineIntersectionResult r1 = l1.lineIntersection(l2);
         LineIntersectionResult r2 = l2.lineIntersection(l1);
         assertTrue(r1.getType() == r2.getType() && r1.getType() == TypeIntersection.ExtremityIntersection);
-        assertTrue( Math.abs(r1.getX() - r1.getX()) < 0.00001);
-        assertTrue( Math.abs(r1.getY() - r1.getY()) < 0.00001);
+        assertTrue( Math.abs(r1.getX() - r2.getX()) < 0.00001);
+        assertTrue( Math.abs(r1.getY() - r2.getY()) < 0.00001);
         assertTrue(Math.abs(r1.getX() - 61.9100) < 0.0001);
         assertTrue(Math.abs(r1.getY() - 126.0700) < 0.0001);
+
     }
 
     @Test
@@ -132,10 +131,24 @@ public class Line2DTest {
         LineIntersectionResult r1 = l1.lineIntersection(l2);
         LineIntersectionResult r2 = l2.lineIntersection(l1);
         assertTrue(r1.getType() == r2.getType() && r1.getType() == TypeIntersection.BoundedIntersection);
-        assertTrue( Math.abs(r1.getX() - r1.getX()) < 0.00001);
-        assertTrue( Math.abs(r1.getY() - r1.getY()) < 0.00001);
+        assertTrue( Math.abs(r1.getX() - r2.getX()) < 0.00001);
+        assertTrue( Math.abs(r1.getY() - r2.getY()) < 0.00001);
         assertTrue(Math.abs(r1.getX() - 61.9100) < 0.0001);
-        assertTrue(Math.abs(r1.getY() - 29.015) < 0.0001);
+        assertTrue(Math.abs(r1.getY() - 29.018) < 0.0001);
+
+    }
+
+    @Test
+    public void lineIntersection_vertical_unbounded_positiveSlope(){
+        Line2D l1 = new Line2D(new SrvPoint2D(456876.7400,236562.6800),new SrvPoint2D(456876.7400,235907.9600));
+        Line2D l2 = new Line2D(new SrvPoint2D(456915.1100,236721.4500),new SrvPoint2D(457408.3000,237108.1400));
+        LineIntersectionResult r1 = l1.lineIntersection(l2);
+        LineIntersectionResult r2 = l2.lineIntersection(l1);
+        assertTrue(r1.getType() == r2.getType() && r1.getType() == TypeIntersection.UnboundedIntersection);
+        assertTrue( Math.abs(r1.getX() - r2.getX()) < 0.00001);
+        assertTrue( Math.abs(r1.getY() - r2.getY()) < 0.00001);
+        assertTrue(Math.abs(r1.getX() - 456876.7400) < 0.0001);
+        assertTrue(Math.abs(r1.getY() - 236691.3657) < 0.0001);
     }
 
 }

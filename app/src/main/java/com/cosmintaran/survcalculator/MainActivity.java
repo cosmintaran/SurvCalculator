@@ -57,16 +57,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onResume ( ) {
-        super.onResume();
-    }
-
-    @Override
-    protected void onPause ( ) {
-        super.onPause();
-    }
-
-    @Override
     public boolean onNavigationItemSelected ( @NonNull MenuItem menuItem ) {
 
         switch (menuItem.getItemId()) {

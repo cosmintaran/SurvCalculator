@@ -69,8 +69,7 @@ public final class vect2D {
     }
 
     public static double dotProduct(@NotNull vect2D v1, @NotNull vect2D v2){
-        double dot =  (v1.x * v2.x) + (v1.y * v2.y);
-        return dot;
+        return (v1.x * v2.x) + (v1.y * v2.y);
     }
 
     public static double crossProduct(@NotNull vect2D v1, @NotNull vect2D v2){
@@ -78,8 +77,7 @@ public final class vect2D {
     }
 
     public double dotProduct(@NotNull vect2D v2){
-        double dot = (x * v2.x) + (y * v2.y);
-        return dot;
+        return (x * v2.x) + (y * v2.y);
     }
 
     public double crossProduct( @NotNull vect2D v2){

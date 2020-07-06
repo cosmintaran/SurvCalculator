@@ -31,9 +31,6 @@ public class ForPointIntersectionFragment extends Fragment {
     private EditText editTextX4;
     private EditText editTextY4;
 
-    private Button _calculateBtt;
-    private Button _clearBtt;
-
     private TextView _intersectionType;
     private TextView _result;
 
@@ -59,7 +56,7 @@ public class ForPointIntersectionFragment extends Fragment {
         _intersectionType = view.findViewById(R.id.txtIntersectionType);
         _result = view.findViewById(R.id.txtResult);
 
-        _clearBtt = view.findViewById(R.id.clearBtt);
+        Button _clearBtt = view.findViewById(R.id.clearBtt);
         _clearBtt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick ( View v ) {
@@ -78,7 +75,7 @@ public class ForPointIntersectionFragment extends Fragment {
             }
         });
 
-        _calculateBtt = view.findViewById(R.id.calculateBtt);
+        Button _calculateBtt = view.findViewById(R.id.calculateBtt);
         _calculateBtt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick ( View v ) {

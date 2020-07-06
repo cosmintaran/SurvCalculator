@@ -66,7 +66,7 @@ public class MapView extends View {
         for (DrawableLine l : lines) {
             if(l == null) continue;
             canvas.drawLine(normalizeX(l.getStartPoint().X), normalizeY(l.getStartPoint().Y), normalizeX(l.getEndPoint().X), normalizeY(l.getEndPoint().Y),
-                    l.isSelected == false ? mPaint : selectedPaint);
+                    !l.isSelected ? mPaint : selectedPaint);
         }
 
         for (DrawablePoint p : points) {
@@ -150,12 +150,10 @@ public class MapView extends View {
 
     private float normalizeX(double x) {
         double w = getWidth();
-        float rez =  (float) ((x - xMin) * this.getWidth() / (xMax - xMin));
-        return rez;
+        return (float) ((x - xMin) * this.getWidth() / (xMax - xMin));
     }
 
     private float normalizeY(double y) {
-        float rez = (float) (this.getHeight() - (y - yMin) * getHeight() / (yMax - yMin));
-        return rez;
+        return (float) (this.getHeight() - (y - yMin) * getHeight() / (yMax - yMin));
     }
 }

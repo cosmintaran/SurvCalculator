@@ -8,7 +8,7 @@ import com.cosmintaran.survcalculator.Map.helperClasses.SrvPoint2D;
 
 public class Line extends Entity {
 
-    private Line2D _line2D;
+    private final Line2D _line2D;
 
     public Line (Context c, SrvPoint2D startPoint , SrvPoint2D endPoint) {
         _line2D = new Line2D(startPoint , endPoint);
