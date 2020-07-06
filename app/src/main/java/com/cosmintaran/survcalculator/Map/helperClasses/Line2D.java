@@ -1,5 +1,8 @@
 package com.cosmintaran.survcalculator.Map.helperClasses;
 
+import android.opengl.Matrix;
+import android.renderscript.Matrix2f;
+
 import org.jetbrains.annotations.NotNull;
 
 public final class Line2D {
@@ -145,6 +148,59 @@ public final class Line2D {
         }
 
         return type;
+    }
+
+    public LineIntersectionResult lineIntersectionMatrix ( Line2D line2 ) {
+
+        double[][] mat = new double[2][2];
+        fillMartix(line2, mat);
+        double det = mat[0][0] * mat[1][1] - mat[0][1] * mat[1][0];
+
+        if(Math.abs(det) < TOLERANCE)
+            return new LineIntersectionResult(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, TypeIntersection.NoIntersection);
+
+        double[][] matTransp = new double[2][2];
+        matTransp[0][0] = mat[0][0];
+        matTransp[0][1] = mat[1][0];
+        matTransp[1][0] = mat[0][1];
+        matTransp[1][1] = mat[1][1];
+
+        //Inverse matrix
+        mat[0][0] =  1/det * matTransp[1][1];
+        mat[0][1] = -1/det * matTransp[1][0];
+        mat[1][0] = -1/det * matTransp[0][1];
+        mat[1][1] =  1/det * matTransp[0][0];
+
+
+        double[] vect = new double[]{ (getIntercept() == Double.POSITIVE_INFINITY || getIntercept() == Double.NEGATIVE_INFINITY || getIntercept() == Double.NaN)? startPoint.X  : getIntercept() ,
+                (line2.getIntercept() == Double.POSITIVE_INFINITY ||line2.getIntercept() == Double.NEGATIVE_INFINITY || line2.getIntercept() == Double.NaN) ? line2.startPoint.X : line2.getIntercept() };
+        double[] rez = new double[2];
+
+        for (int i = 0; i < 2; ++i){
+            for (int j = 0; j < 2; ++j){
+                rez[i] += vect[j]*mat[i][j];
+            }
+        }
+        return new LineIntersectionResult(rez[0],rez[1],getTypeIntersection(line2,rez[0],rez[1]));
+    }
+
+    private void fillMartix(Line2D line2, double[][] mat) {
+        if(getSlope() == Double.NEGATIVE_INFINITY || getSlope() == Double.POSITIVE_INFINITY || getSlope() == Double.NaN){
+            mat[0][0] = 1 ;
+            mat[0][1] = 0;
+        }
+        else {
+            mat[0][0] = getSlope() * -1;
+            mat[0][1] = 1;
+        }
+        if(line2.getSlope() == Double.NEGATIVE_INFINITY || line2.getSlope() == Double.POSITIVE_INFINITY || line2.getSlope() == Double.NaN){
+            mat[1][0] = 1;
+            mat[1][1] = 0;
+        }
+        else {
+            mat[1][0] = line2.getSlope() * -1;
+            mat[1][1] = 1;
+        }
     }
 
 
