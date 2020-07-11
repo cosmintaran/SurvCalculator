@@ -1,8 +1,5 @@
 package com.cosmintaran.survcalculator.Map.helperClasses;
 
-import android.opengl.Matrix;
-import android.renderscript.Matrix2f;
-
 import org.jetbrains.annotations.NotNull;
 
 public final class Line2D {
@@ -14,6 +11,7 @@ public final class Line2D {
     private final double length;
     private final double slope;
     private final double intercept;
+    private SrvPoint2D pt;
 
 
     public Line2D ( SrvPoint2D startPoint , SrvPoint2D endPoint ) {
@@ -40,25 +38,35 @@ public final class Line2D {
     }
 
     public double distanceToPoint ( SrvPoint2D pt ) {
-        return pt.distanceTo(PointIntersection(pt));
+        return pt.distanceTo(pointIntersection(pt));
     }
 
-    public SrvPoint2D PointIntersection ( SrvPoint2D pt ) {
+    public SrvPoint2D pointIntersection(SrvPoint2D pt ) {
         //find line equation of perpendicular line which goes trough pt
-        double slopePrime = -1 / getSlope();
-        double interceptPrime = pt.Y - pt.X * slopePrime;
-        double left = slopePrime + (-1 * getSlope());
+        Line2D perpLine = null;
+        if(Double.isInfinite(getSlope()) || Double.isNaN(getSlope())){
+            perpLine = new Line2D(pt,new SrvPoint2D(pt.X + 2, pt.Y));
+        }
+        else{
+            double slopePrime = -1 / getSlope();
+            double interceptPrime = pt.Y - pt.X * slopePrime;
+            perpLine = new Line2D(pt,new SrvPoint2D(pt.X + 2,(pt.X + 2)* slopePrime + interceptPrime));
+        }
+
+        /*double left = slopePrime + (-1 * getSlope());
         double right = getIntercept() + (-1 * interceptPrime);
         double x = right / (left);
         double y = getSlope() * x + getIntercept();
-        return new SrvPoint2D(x , y);
+        return new SrvPoint2D(x , y);*/
+        LineIntersectionResult rez = lineIntersection(perpLine);
+        return new SrvPoint2D(rez.getX(),rez.getY());
     }
 
     public boolean isPointOnLine ( SrvPoint2D pt ) {
         vect2D vec1 = pt.subtract(startPoint);
         vect2D vec2 = pt.subtract(endPoint);
         double det = vec1.getX() * vec2.getY() - vec2.getX() * vec1.getY();
-        return Math.abs(det) < 0.001;
+        return Math.abs(det) < 0.001; //area of the dot product is twice as size of area of triangle
     }
 
     public SrvPoint2D getStartPoint ( ) {
@@ -196,6 +204,11 @@ public final class Line2D {
 
             type = TypeIntersection.BoundedIntersection;
 
+        }else if((Math.abs(startPoint.Y - endPoint.Y) < TOLERANCE || Math.abs(line2.startPoint.Y - line2.endPoint.Y) < TOLERANCE) &&
+                x1 < Math.max(startPoint.X , endPoint.X) && x1 > Math.min(startPoint.X , endPoint.X) &&
+                x1 < Math.max(line2.startPoint.X , line2.endPoint.X) && x1 > Math.min(line2.startPoint.X , line2.endPoint.X)){
+            type = TypeIntersection.BoundedIntersection;
+
         } else if (Math.abs(x1 - startPoint.X) < TOLERANCE && Math.abs(y1 - startPoint.Y) < TOLERANCE ||
                 Math.abs(x1 - endPoint.X) < TOLERANCE && Math.abs(y1 - endPoint.Y) < TOLERANCE ||
                 Math.abs(x1 - line2.startPoint.X) < TOLERANCE && Math.abs(y1 - line2.startPoint.Y) < TOLERANCE ||
@@ -216,7 +229,7 @@ public final class Line2D {
     public LineIntersectionResult lineIntersection ( Line2D line2 ) {
 
         double[][] mat = new double[2][2];
-        fillMartix(line2, mat);
+        fillMatrix(line2, mat);
         double det = mat[0][0] * mat[1][1] - mat[0][1] * mat[1][0];
 
         if(Math.abs(det) < TOLERANCE)
@@ -235,8 +248,8 @@ public final class Line2D {
         mat[1][1] =  1/det * matTransp[0][0];
 
 
-        double[] vect = new double[]{ (getIntercept() == Double.POSITIVE_INFINITY || getIntercept() == Double.NEGATIVE_INFINITY || getIntercept() == Double.NaN)? startPoint.X  : getIntercept() ,
-                (line2.getIntercept() == Double.POSITIVE_INFINITY ||line2.getIntercept() == Double.NEGATIVE_INFINITY || line2.getIntercept() == Double.NaN) ? line2.startPoint.X : line2.getIntercept() };
+        double[] vect = new double[]{ Double.isInfinite(getIntercept()) || Double.isNaN(getIntercept())? startPoint.X  : getIntercept() ,
+                (Double.isInfinite(line2.getIntercept()) || Double.isNaN(line2.getIntercept())) ? line2.startPoint.X : line2.getIntercept() };
         double[] rez = new double[2];
 
         for (int i = 0; i < 2; ++i){
@@ -247,8 +260,21 @@ public final class Line2D {
         return new LineIntersectionResult(rez[0],rez[1],getTypeIntersection(line2,rez[0],rez[1]));
     }
 
-    private void fillMartix(Line2D line2, double[][] mat) {
-        if(getSlope() == Double.NEGATIVE_INFINITY || getSlope() == Double.POSITIVE_INFINITY || getSlope() == Double.NaN){
+    public SrvPoint2D pointAtDistance(double dist){
+
+        SrvPoint2D point = null;
+        if(Double.isInfinite(getSlope()) || Double.isNaN(getSlope())){
+            point = new SrvPoint2D(startPoint.X + dist, startPoint.Y);
+        }
+        else{
+            point = new SrvPoint2D(startPoint.X + 2,(startPoint.X + 2)* getSlope() + getIntercept());
+        }
+        return point;
+    }
+
+
+    private void fillMatrix(Line2D line2, double[][] mat) {
+        if(Double.isInfinite(getSlope()) || Double.isNaN(getSlope())){
             mat[0][0] = 1 ;
             mat[0][1] = 0;
         }
@@ -256,7 +282,7 @@ public final class Line2D {
             mat[0][0] = getSlope() * -1;
             mat[0][1] = 1;
         }
-        if(line2.getSlope() == Double.NEGATIVE_INFINITY || line2.getSlope() == Double.POSITIVE_INFINITY || line2.getSlope() == Double.NaN){
+        if(Double.isInfinite(line2.getSlope()) || Double.isNaN(line2.getSlope())){
             mat[1][0] = 1;
             mat[1][1] = 0;
         }

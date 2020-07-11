@@ -47,8 +47,28 @@ public class PointFragment extends Fragment implements AdapterView.OnItemSelecte
 
     @Override
     public void onItemSelected ( AdapterView<?> parent , View view , int position , long id ) {
+
         FragmentTransaction childFragTrans = getChildFragmentManager().beginTransaction();
-        childFragTrans.replace(R.id.fragment_container_points,new ForPointIntersectionFragment());
+        switch (position){
+            case 0:{
+                childFragTrans.replace(R.id.fragment_container_points,new ForPointIntersectionFragment());
+                break;
+            }
+            case 1:{
+                childFragTrans.replace(R.id.fragment_container_points,new DropPerpendicularFragment());
+                break;
+            }
+            case 3:{
+                childFragTrans.replace(R.id.fragment_container_points,new ForPointIntersectionFragment());
+                break;
+            }
+
+            default:{
+                childFragTrans.replace(R.id.fragment_container_points,new ForPointIntersectionFragment());
+                break;
+            }
+
+        }
         childFragTrans.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
         childFragTrans.addToBackStack(null);
         childFragTrans.commit();

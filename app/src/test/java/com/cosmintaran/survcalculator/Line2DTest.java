@@ -24,23 +24,53 @@ public class Line2DTest {
         Line2D l1 = new Line2D(new SrvPoint2D(3,6),new SrvPoint2D(3,2));
         //Slope
         assertTrue(l1.getSlope() == Double.NEGATIVE_INFINITY || l1.getSlope() == Double.POSITIVE_INFINITY
-        || l1.getSlope() == Double.NaN);
+        || Double.isNaN(l1.getSlope()));
         //intercept
         assertTrue(l1.getIntercept() == Double.NEGATIVE_INFINITY || l1.getIntercept() == Double.POSITIVE_INFINITY
-                || l1.getIntercept() == Double.NaN);
+                || Double.isNaN(l1.getIntercept()));
         //length
-        assertTrue(l1.getLength() == 4);
+        assertEquals(4, l1.getLength(), 0.0000001);
     }
 
     @Test
     public void lineEquation3(){
         Line2D l1 = new Line2D(new SrvPoint2D(20,6),new SrvPoint2D(40,6));
         //Slope
-        assertTrue(l1.getSlope() == 0);
+        assertEquals(0, l1.getSlope(), 0.0000001);
         //intercept
-        assertTrue(l1.getIntercept() == l1.getStartPoint().Y);
+        assertEquals(l1.getIntercept(), l1.getStartPoint().Y, 0.0);
         //length
-        assertTrue(l1.getLength() == 20);
+        assertEquals(20, l1.getLength(), 0.0000001);
+    }
+
+    @Test
+    public void distanceToPoint_Test(){
+        Line2D l1 = new Line2D(new SrvPoint2D(5,6),new SrvPoint2D(10,8));
+        SrvPoint2D pt = new SrvPoint2D(8,6);
+        assertEquals(1.1141720291, l1.distanceToPoint(pt), 0.00001);
+    }
+
+    @Test
+    public void distanceToPoint_VerticalLine(){
+        Line2D l1 = new Line2D(new SrvPoint2D(5,6),new SrvPoint2D(5,2));
+        SrvPoint2D pt = new SrvPoint2D(6.5,4);
+        assertEquals(1.5, l1.distanceToPoint(pt), 0.00001);
+    }
+
+    @Test
+    public void pointAtDistance_Test(){
+        Line2D l1 = new Line2D(new SrvPoint2D(5,6),new SrvPoint2D(10,8));
+        SrvPoint2D rez = l1.pointAtDistance(2);
+        assertEquals(7,rez.X, 0.0000001);
+        assertEquals(6.8,rez.Y, 0.0000001);
+    }
+
+    @Test
+    public void pointAtDistance_Vertical(){
+        Line2D l1 = new Line2D(new SrvPoint2D(5,6),new SrvPoint2D(5,2));
+        SrvPoint2D rez = l1.pointAtDistance(2);
+        assertEquals(7,rez.X, 0.0000001);
+        assertEquals(6,rez.Y, 0.0000001);
     }
 
     @Test
@@ -151,4 +181,50 @@ public class Line2DTest {
         assertTrue(Math.abs(r1.getY() - 236691.3657) < 0.0001);
     }
 
+
+    @Test
+    public void lineIntersection_horizontal_bounded(){
+        Line2D l1 = new Line2D(new SrvPoint2D(5,7),new SrvPoint2D(16,7));
+        Line2D l2 = new Line2D(new SrvPoint2D(7,5),new SrvPoint2D(15,11));
+        LineIntersectionResult r1 = l1.lineIntersection(l2);
+        LineIntersectionResult r2 = l2.lineIntersection(l1);
+        assertTrue(r1.getType() == r2.getType() && r1.getType() == TypeIntersection.BoundedIntersection);
+        assertEquals( Math.abs(r1.getX() - r2.getX()), 0,0.00001);
+        assertEquals( Math.abs(r1.getY() - r2.getY()),0, 0.00001);
+        assertEquals(Math.abs(r1.getX() - 9.66667),0, 0.0001);
+        assertEquals(Math.abs(r1.getY() - 7),0 , 0.0001);
+    }
+
+    @Test
+    public void lineIntersection_horizontal_Parallel(){
+        Line2D l1 = new Line2D(new SrvPoint2D(5,7),new SrvPoint2D(16,7));
+        Line2D l2 = new Line2D(new SrvPoint2D(1,9),new SrvPoint2D(15,9));
+        LineIntersectionResult r1 = l1.lineIntersection(l2);
+        LineIntersectionResult r2 = l2.lineIntersection(l1);
+        assertTrue(r1.getType() == r2.getType() && r1.getType() == TypeIntersection.NoIntersection);
+    }
+
+    @Test
+    public void lineIntersection_vertical_Parallel(){
+        Line2D l1 = new Line2D(new SrvPoint2D(8,13),new SrvPoint2D(8,4));
+        Line2D l2 = new Line2D(new SrvPoint2D(4,13),new SrvPoint2D(4,5));
+        LineIntersectionResult r1 = l1.lineIntersection(l2);
+        LineIntersectionResult r2 = l2.lineIntersection(l1);
+        assertTrue(r1.getType() == r2.getType() && r1.getType() == TypeIntersection.NoIntersection);
+    }
+
+
+    @Test
+    public void isPointOnLine_true(){
+        Line2D l1 = new Line2D(new SrvPoint2D(5,7),new SrvPoint2D(16,7));
+        SrvPoint2D pt = new SrvPoint2D(9.66667,7);
+        assertTrue(l1.isPointOnLine(pt));
+    }
+
+    @Test
+    public void isPointOnLine_false(){
+        Line2D l1 = new Line2D(new SrvPoint2D(5,7),new SrvPoint2D(16,7));
+        SrvPoint2D pt = new SrvPoint2D(8,4);
+        assertFalse(l1.isPointOnLine(pt));
+    }
 }
